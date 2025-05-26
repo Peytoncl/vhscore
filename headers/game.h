@@ -16,16 +16,26 @@ typedef struct
     double speed;
 } Player;
 
-extern Player player;
+typedef struct
+{
+    int x;
+    int y;
+    int state;
+    int clicked;
+    int locked;
+} Mouse;
 
 // Core Engine things
 
 #define KEY_COUNT 256
 
+extern Player player;
 extern int keys[KEY_COUNT];
+extern Mouse mouse;
 
 void ReDisplay();
 void Update(double deltaTime);
 void Start();
+void MouseMovement(int x, int y);
 
 #endif

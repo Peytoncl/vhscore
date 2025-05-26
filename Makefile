@@ -9,7 +9,7 @@ OBJ_DIR = obj
 BIN_DIR = bin
 
 # Executable name
-TARGET = $(BIN_DIR)/words.exe
+TARGET = $(BIN_DIR)/VHS.exe
 
 # Source files and object files
 SRC = $(wildcard $(SRC_DIR)/*.c)

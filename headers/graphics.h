@@ -8,4 +8,7 @@
 extern int windowW;
 extern int windowH;
 
+extern int windowHW;
+extern int windowHH;
+
 #endif

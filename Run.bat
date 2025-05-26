@@ -1,3 +1,3 @@
 mingw32-make
 
-bin\words.exe
+bin\VHS.exe
