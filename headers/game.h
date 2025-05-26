@@ -3,14 +3,17 @@
 #define GAMEH
 
 #include <windows.h>
+#include "types.h"
 
 // Game Variables
 
 typedef struct
 {
-    POINT position;
-    POINT angle;
+    DPOINT position;
+    DPOINT angle;
     double FOV;
+    double sensitivity;
+    double speed;
 } Player;
 
 extern Player player;
@@ -22,7 +25,7 @@ extern Player player;
 extern int keys[KEY_COUNT];
 
 void ReDisplay();
-void Update();
+void Update(double deltaTime);
 void Start();
 
 #endif

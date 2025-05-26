@@ -12,11 +12,11 @@ void DrawWalls()
 {
     glBegin(GL_LINES);
 
-    double dirX = cos((double)player.angle.x);
-    double dirY = sin((double)player.angle.x);
+    double dirX = cos(player.angle.x);
+    double dirY = sin(player.angle.x);
 
-    double planeX = -sin((double)player.angle.x) * player.FOV;
-    double planeY = cos((double)player.angle.x) * player.FOV;
+    double planeX = -sin(player.angle.x) * player.FOV;
+    double planeY = cos(player.angle.x) * player.FOV;
 
     for (int x = 0; x < windowW; x++) 
     {
@@ -44,22 +44,22 @@ void DrawWalls()
         if (rayDirX < 0) 
         {
             stepX = -1;
-            sideDistX = ((int)player.position.x - mapX) * deltaDistX;
+            sideDistX = (player.position.x - mapX) * deltaDistX;
         } 
         else 
         {
             stepX = 1;
-            sideDistX = (mapX + 1.0 - (int)player.position.x) * deltaDistX;
+            sideDistX = (mapX + 1.0 - player.position.x) * deltaDistX;
         }
         if (rayDirY < 0) 
         {
             stepY = -1;
-            sideDistY = ((int)player.position.y - mapY) * deltaDistY;
+            sideDistY = (player.position.y - mapY) * deltaDistY;
         } 
         else 
         {
             stepY = 1;
-            sideDistY = (mapY + 1.0 - (int)player.position.y) * deltaDistY;
+            sideDistY = (mapY + 1.0 - player.position.y) * deltaDistY;
         }
 
         while (!hit) //DDA
@@ -80,8 +80,8 @@ void DrawWalls()
             if (map[mapX][mapY] > 0) hit = TRUE;
         }
         
-        if (side == 0) perpWallDist = (mapX - (int)player.position.x + (1 - stepX) / 2) / rayDirX;
-        else perpWallDist = (mapY - (int)player.position.y + (1 - stepY) / 2) / rayDirY;
+        if (side == 0) perpWallDist = (mapX - player.position.x + (1 - stepX) / 2) / rayDirX;
+        else perpWallDist = (mapY - player.position.y + (1 - stepY) / 2) / rayDirY;
 
         int lineHeight = (int)(windowH / perpWallDist);
 
