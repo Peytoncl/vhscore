@@ -2,6 +2,6 @@
 
 #define RENDERINGH
 
-
+void DrawWalls();
 
 #endif
