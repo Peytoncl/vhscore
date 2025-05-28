@@ -2,6 +2,11 @@
 
 #define WORLDH
 
+typedef enum
+{
+    BRICK
+} WALL_TYPES;
+
 #define MAP_LENGTH 64
 
 int map[MAP_LENGTH][MAP_LENGTH] = 
