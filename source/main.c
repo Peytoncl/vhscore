@@ -87,10 +87,6 @@ int main(int argc, char** argv)
   windowHW = (int)((double)windowW * 0.5);
   windowHH = (int)((double)windowH * 0.5);
 
-  InitializeImages();
-
-  OpenImage("C:/Users/Peyton/Documents/GitHub/vhscore/bin/wall.png", 0);
-
   Start();
 
   for (int i = 0; i < KEY_COUNT; i++) 
