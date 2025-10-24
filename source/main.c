@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h> 
+#include <unistd.h>
 #include <math.h>
 #include <time.h>
 #include <windows.h>
@@ -75,6 +76,20 @@ void WindowResize(int width, int height)
   glutReshapeWindow(windowW, windowH);
 }
 
+void GetCwd()
+{
+  cwd = malloc(1024);
+
+  if (getcwd(cwd, 1024) != NULL) 
+  {
+    printf("Current working directory: %s\n", cwd);
+  } 
+  else 
+  {
+    perror("getcwd() error");
+  }
+}
+
 int main(int argc, char** argv) 
 {
   glutInit(&argc, argv);    
@@ -86,6 +101,8 @@ int main(int argc, char** argv)
 
   windowHW = (int)((double)windowW * 0.5);
   windowHH = (int)((double)windowH * 0.5);
+
+  GetCwd();
 
   Start();
 

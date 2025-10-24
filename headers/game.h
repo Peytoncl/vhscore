@@ -7,6 +7,8 @@
 
 // Game Variables
 
+char* cwd;
+
 typedef struct
 {
     DPOINT position;

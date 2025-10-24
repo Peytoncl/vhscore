@@ -10,13 +10,19 @@ extern Player player;
 
 void DrawWalls()
 {
-    glBegin(GL_LINES);
+    // raycasting //
+
+    int bindedTexture = -1; // currently binded texture index. -1 means unbinded
 
     double dirX = cos(player.angle.x);
     double dirY = sin(player.angle.x);
 
     double planeX = -sin(player.angle.x) * player.FOV;
     double planeY = cos(player.angle.x) * player.FOV;
+
+    glEnable(GL_TEXTURE_2D); // enable texturing
+
+    glBegin(GL_QUADS);
 
     for (int x = 0; x < windowW; x++) 
     {
@@ -62,6 +68,8 @@ void DrawWalls()
             sideDistY = (mapY + 1.0 - player.position.y) * deltaDistY;
         }
 
+        int hitIndex = 0; // the index of the wall that was hit.
+
         while (!hit) //DDA
         {
             if (sideDistX < sideDistY) 
@@ -77,9 +85,9 @@ void DrawWalls()
                 side = 1;
             }
 
-            if (map[mapX][mapY] > 0) hit = TRUE;
+            if (map[mapY][mapX] >= 0) hit = TRUE;
         }
-        
+
         if (side == 0) perpWallDist = (mapX - player.position.x + (1 - stepX) / 2) / rayDirX;
         else perpWallDist = (mapY - player.position.y + (1 - stepY) / 2) / rayDirY;
 
@@ -91,9 +99,33 @@ void DrawWalls()
         if (drawStart < 0) drawStart = 0;
         if (drawEnd >= windowH) drawEnd = windowH - 1;
 
+        // texturing //
+
+        double wallX;  // exact hit location on wall
+
+        if (side == 0) wallX = player.position.y + perpWallDist * rayDirY;
+        else wallX = player.position.x + perpWallDist * rayDirX;
+        
+        wallX -= floor(wallX); 
+        int textureX = (int)(wallX * TEXTURE_SIZE);
+
+        glBindTexture(GL_TEXTURE_2D, textures[hitIndex]); // bind the wall texture
+
+        glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 0.0);
         glVertex2i(x, drawStart);
+
+        glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 1.0);
         glVertex2i(x, drawEnd);
+
+        glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 1.0);
+        glVertex2i(x+1, drawEnd);
+
+        glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 0.0);
+        glVertex2i(x+1, drawStart);
+        
     }
 
     glEnd();
+
+    glDisable(GL_TEXTURE_2D);
 }

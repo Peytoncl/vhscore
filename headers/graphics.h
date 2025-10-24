@@ -17,7 +17,10 @@ extern int windowH;
 extern int windowHW;
 extern int windowHH;
 
-#define NUM_TEXTURES 16
-extern GLuint textures[NUM_TEXTURES];
+#define MAX_TEXTURES 1024 // max amount of textures that can be loaded at once during runtime
+#define TEXTURE_SIZE 256 // square size of all images, has to be equal to this.
+extern GLuint textures[MAX_TEXTURES];
+
+void LoadTexture(char* textureName, int index);
 
 #endif

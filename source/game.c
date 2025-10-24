@@ -14,7 +14,7 @@ void ReDisplay()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glColor3f(0, 0, 170);
+    glColor3f(1, 1, 1);
 
     DrawWalls();
 
@@ -69,4 +69,6 @@ void Start()
     player.speed = 4;
 
     gluOrtho2D(0, windowW, windowH, 0);
+
+    LoadTexture("wall.png", 0);
 }
