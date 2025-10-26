@@ -97,7 +97,7 @@ int main(int argc, char** argv)
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);        
   glutInitWindowSize(windowW, windowH);        
     
-  glutCreateWindow("VHS");  
+  glutCreateWindow("raycasting engine");  
 
   windowHW = (int)((double)windowW * 0.5);
   windowHH = (int)((double)windowH * 0.5);

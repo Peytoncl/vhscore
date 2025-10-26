@@ -22,8 +22,6 @@ void DrawWalls()
 
     glEnable(GL_TEXTURE_2D); // enable texturing
 
-    glBegin(GL_QUADS);
-
     for (int x = 0; x < windowW; x++) 
     {
         double cameraX = 2 * x / (double)windowW - 1;
@@ -68,8 +66,6 @@ void DrawWalls()
             sideDistY = (mapY + 1.0 - player.position.y) * deltaDistY;
         }
 
-        int hitIndex = 0; // the index of the wall that was hit.
-
         while (!hit) //DDA
         {
             if (sideDistX < sideDistY) 
@@ -88,6 +84,8 @@ void DrawWalls()
             if (map[mapY][mapX] >= 0) hit = TRUE;
         }
 
+        int hitIndex = map[mapY][mapX];
+
         if (side == 0) perpWallDist = (mapX - player.position.x + (1 - stepX) / 2) / rayDirX;
         else perpWallDist = (mapY - player.position.y + (1 - stepY) / 2) / rayDirY;
 
@@ -96,8 +94,8 @@ void DrawWalls()
         int drawStart = -lineHeight / 2 + windowH / 2;
         int drawEnd = lineHeight / 2 + windowH / 2;
 
-        if (drawStart < 0) drawStart = 0;
-        if (drawEnd >= windowH) drawEnd = windowH - 1;
+        //if (drawStart < 0) drawStart = 0;
+        //if (drawEnd >= windowH) drawEnd = windowH - 1;
 
         // texturing //
 
@@ -109,7 +107,16 @@ void DrawWalls()
         wallX -= floor(wallX); 
         int textureX = (int)(wallX * TEXTURE_SIZE);
 
-        glBindTexture(GL_TEXTURE_2D, textures[hitIndex]); // bind the wall texture
+        if (bindedTexture != hitIndex)
+        {
+            bindedTexture = hitIndex;
+
+            glEnd();
+
+            glBindTexture(GL_TEXTURE_2D, textures[hitIndex]); // bind the wall texture
+
+            glBegin(GL_QUADS);
+        }
 
         glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 0.0);
         glVertex2i(x, drawStart);
@@ -122,6 +129,8 @@ void DrawWalls()
 
         glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 0.0);
         glVertex2i(x+1, drawStart);
+
+        glBindTexture(GL_TEXTURE_2D, 0); 
         
     }
 

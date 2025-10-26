@@ -25,13 +25,13 @@ void LoadTexture(char* textureName, int index) // loads texture at index, can no
         exit(1);
     }
 
+    //printf("%s loaded at index %d\n", textureName, index);
+
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
 
-    GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
-
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -47,6 +47,8 @@ void UnloadTexture(int index) // unloads texture at index
     glDeleteTextures(1, &textures[index]);
 
     textures[index] = 0;
+
+    //printf("texture at index %d unloaded\n", index);
 
     amountOfTextures--;
 }

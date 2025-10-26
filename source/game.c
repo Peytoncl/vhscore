@@ -70,5 +70,6 @@ void Start()
 
     gluOrtho2D(0, windowW, windowH, 0);
 
-    LoadTexture("wall.png", 0);
+    LoadTexture("textures/wall.png", 0);
+    LoadTexture("textures/cade.png", 1);
 }
