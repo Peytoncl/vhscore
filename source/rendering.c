@@ -12,7 +12,7 @@ void DrawWalls()
 {
     // raycasting //
 
-    int bindedTexture = -1; // currently binded texture index. -1 means unbinded
+    //int bindedTexture = -1; // currently binded texture index. -1 means unbinded
 
     double dirX = cos(player.angle.x);
     double dirY = sin(player.angle.x);
@@ -97,7 +97,7 @@ void DrawWalls()
         //if (drawStart < 0) drawStart = 0;
         //if (drawEnd >= windowH) drawEnd = windowH - 1;
 
-        // texturing //
+        // drawing walls //
 
         double wallX;  // exact hit location on wall
 
@@ -107,6 +107,7 @@ void DrawWalls()
         wallX -= floor(wallX); 
         int textureX = (int)(wallX * TEXTURE_SIZE);
 
+        /*
         if (bindedTexture != hitIndex)
         {
             bindedTexture = hitIndex;
@@ -117,6 +118,11 @@ void DrawWalls()
 
             glBegin(GL_QUADS);
         }
+        */
+
+        glBindTexture(GL_TEXTURE_2D, textures[hitIndex]); // bind the wall texture
+
+        glBegin(GL_QUADS);
 
         glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 0.0);
         glVertex2i(x, drawStart);
@@ -130,11 +136,32 @@ void DrawWalls()
         glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 0.0);
         glVertex2i(x+1, drawStart);
 
+        glEnd();
+
         glBindTexture(GL_TEXTURE_2D, 0); 
+
+        // drawing ceiling and floor // 
+        /*
+
+        glBegin(GL_LINES);
+
+        for (int y = drawEnd + 1; y <= windowH; y++)
+        {
+
+            glVertex2i(x, y);
+            glVertex2i(x, drawEnd);
+
+
+            glVertex2i(x, windowH - y);
+            glVertex2i(x, drawStart);
+        }
+
+        glEnd();
+        */
         
     }
 
-    glEnd();
+    //glEnd();
 
     glDisable(GL_TEXTURE_2D);
 }
