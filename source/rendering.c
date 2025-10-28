@@ -8,17 +8,56 @@
 
 extern Player player;
 
+int bindedTexture = -1; // currently binded texture index. -1 means unbinded
+GLenum currentDrawType;
+
+BOOL CheckBindedTexture(int index, GLenum drawType)
+{
+    if (bindedTexture != index)
+    {
+        if (bindedTexture != -1) glEnd();
+
+        bindedTexture = index;
+
+        glBindTexture(GL_TEXTURE_2D, textures[index]); // bind the wall texture
+
+        glBegin(drawType);
+
+        currentDrawType = drawType;
+
+        return TRUE;
+    }
+
+    if (currentDrawType != drawType)
+    {
+        glEnd();
+
+        glBegin(drawType);
+    }
+
+    return FALSE;
+}
+
 void DrawWalls()
 {
     // raycasting //
 
-    //int bindedTexture = -1; // currently binded texture index. -1 means unbinded
+    bindedTexture = -1;
 
     double dirX = cos(player.angle.x);
     double dirY = sin(player.angle.x);
 
     double planeX = -sin(player.angle.x) * player.FOV;
     double planeY = cos(player.angle.x) * player.FOV;
+
+    double wallPerpDistances[windowW];
+    int wallEnds[windowW];
+    int sides[windowW];
+    int mapXs[windowW];
+    int mapYs[windowW];
+    double rayDirXs[windowW];
+    double rayDirYs[windowW];
+    double wallXs[windowW];
 
     glEnable(GL_TEXTURE_2D); // enable texturing
 
@@ -107,22 +146,7 @@ void DrawWalls()
         wallX -= floor(wallX); 
         int textureX = (int)(wallX * TEXTURE_SIZE);
 
-        /*
-        if (bindedTexture != hitIndex)
-        {
-            bindedTexture = hitIndex;
-
-            glEnd();
-
-            glBindTexture(GL_TEXTURE_2D, textures[hitIndex]); // bind the wall texture
-
-            glBegin(GL_QUADS);
-        }
-        */
-
-        glBindTexture(GL_TEXTURE_2D, textures[hitIndex]); // bind the wall texture
-
-        glBegin(GL_QUADS);
+        CheckBindedTexture(hitIndex, GL_QUADS);
 
         glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 0.0);
         glVertex2i(x, drawStart);
@@ -136,32 +160,128 @@ void DrawWalls()
         glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 0.0);
         glVertex2i(x+1, drawStart);
 
-        glEnd();
-
-        glBindTexture(GL_TEXTURE_2D, 0); 
-
-        // drawing ceiling and floor // 
-        /*
-
-        glBegin(GL_LINES);
-
-        for (int y = drawEnd + 1; y <= windowH; y++)
-        {
-
-            glVertex2i(x, y);
-            glVertex2i(x, drawEnd);
-
-
-            glVertex2i(x, windowH - y);
-            glVertex2i(x, drawStart);
-        }
-
-        glEnd();
-        */
+        wallEnds[x] = drawEnd;
+        wallPerpDistances[x] = perpWallDist;
+        sides[x] = side;
+        mapXs[x] = mapX;
+        mapYs[x] = mapY;
+        wallXs[x] = wallX;
+        rayDirXs[x] = rayDirX;
+        rayDirYs[x] = rayDirY;
         
     }
 
-    //glEnd();
+    // drawing floor // 
+
+    for (int x = 0; x < windowW; x++)
+    {
+        double floorXWall;
+        double floorYWall;
+
+        if (sides[x] == 0 && rayDirXs[x] > 0) 
+        {
+            floorXWall = mapXs[x];
+            floorYWall = mapYs[x] + wallXs[x];
+        } 
+        else if (sides[x] == 0 && rayDirXs[x] < 0) 
+        {
+            floorXWall = mapXs[x] + 1.0;
+            floorYWall = mapYs[x] + wallXs[x];
+        } 
+        else if (sides[x] == 1 && rayDirYs[x] > 0) 
+        {
+            floorXWall = mapXs[x] + wallXs[x];
+            floorYWall = mapYs[x];
+        } 
+        else 
+        {
+            floorXWall = mapXs[x] + wallXs[x];
+            floorYWall = mapYs[x] + 1.0;
+        }
+
+        for (int y = wallEnds[x] + 1; y <= windowH; y++)
+        {
+            double currentDist = windowH / (2.0 * y - windowH);
+            double weight = currentDist / wallPerpDistances[x];
+
+            double currentFloorX = weight * floorXWall + (1.0 - weight) * player.position.x;
+            double currentFloorY = weight * floorYWall + (1.0 - weight) * player.position.y;
+
+            int cellX = (int)currentFloorX;
+            int cellY = (int)currentFloorY;
+
+            int floorHitIndex = floorMap[(int)currentFloorY][(int)currentFloorX];
+            
+            double fracX = currentFloorX - cellX;
+            double fracY = currentFloorY - cellY;
+
+            int texX = (int)(fracX * TEXTURE_SIZE);
+            int texY = (int)(fracY * TEXTURE_SIZE);
+
+            BOOL bindResult = CheckBindedTexture(floorHitIndex, GL_POINTS);
+
+            glTexCoord2f((float)texX / (float)TEXTURE_SIZE, (float)texY / (float)TEXTURE_SIZE);
+            glVertex2i(x, y);
+        }
+
+    }
+
+    // drawing ceiling (floor mirrored) // 
+    
+    for (int x = 0; x < windowW; x++)
+    {
+        double floorXWall;
+        double floorYWall;
+
+        if (sides[x] == 0 && rayDirXs[x] > 0) 
+        {
+            floorXWall = mapXs[x];
+            floorYWall = mapYs[x] + wallXs[x];
+        } 
+        else if (sides[x] == 0 && rayDirXs[x] < 0) 
+        {
+            floorXWall = mapXs[x] + 1.0;
+            floorYWall = mapYs[x] + wallXs[x];
+        } 
+        else if (sides[x] == 1 && rayDirYs[x] > 0) 
+        {
+            floorXWall = mapXs[x] + wallXs[x];
+            floorYWall = mapYs[x];
+        } 
+        else 
+        {
+            floorXWall = mapXs[x] + wallXs[x];
+            floorYWall = mapYs[x] + 1.0;
+        }
+
+        for (int y = wallEnds[x] + 1; y <= windowH; y++)
+        {
+            double currentDist = windowH / (2.0 * y - windowH);
+            double weight = currentDist / wallPerpDistances[x];
+
+            double currentFloorX = weight * floorXWall + (1.0 - weight) * player.position.x;
+            double currentFloorY = weight * floorYWall + (1.0 - weight) * player.position.y;
+
+            int cellX = (int)currentFloorX;
+            int cellY = (int)currentFloorY;
+
+            int floorHitIndex = ceilingMap[(int)currentFloorY][(int)currentFloorX];
+            
+            double fracX = currentFloorX - cellX;
+            double fracY = currentFloorY - cellY;
+
+            int texX = (int)(fracX * TEXTURE_SIZE);
+            int texY = (int)(fracY * TEXTURE_SIZE);
+
+            BOOL bindResult = CheckBindedTexture(floorHitIndex, GL_POINTS);
+
+            glTexCoord2f((float)texX / (float)TEXTURE_SIZE, (float)texY / (float)TEXTURE_SIZE);
+            glVertex2i(x, windowH - y);
+        }
+
+    }
+
+    glEnd();
 
     glDisable(GL_TEXTURE_2D);
 }

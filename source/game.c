@@ -72,4 +72,5 @@ void Start()
 
     LoadTexture("textures/wall.png", 0);
     LoadTexture("textures/cade.png", 1);
+    LoadTexture("textures/floor.png", 2);
 }
