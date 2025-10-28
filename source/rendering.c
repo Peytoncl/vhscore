@@ -123,8 +123,6 @@ void DrawWalls()
             if (map[mapY][mapX] >= 0) hit = TRUE;
         }
 
-        int hitIndex = map[mapY][mapX];
-
         if (side == 0) perpWallDist = (mapX - player.position.x + (1 - stepX) / 2) / rayDirX;
         else perpWallDist = (mapY - player.position.y + (1 - stepY) / 2) / rayDirY;
 
@@ -146,7 +144,7 @@ void DrawWalls()
         wallX -= floor(wallX); 
         int textureX = (int)(wallX * TEXTURE_SIZE);
 
-        CheckBindedTexture(hitIndex, GL_QUADS);
+        CheckBindedTexture(map[mapY][mapX], GL_QUADS);
 
         glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 0.0);
         glVertex2i(x, drawStart);
@@ -209,8 +207,6 @@ void DrawWalls()
 
             int cellX = (int)currentFloorX;
             int cellY = (int)currentFloorY;
-
-            int floorHitIndex = floorMap[(int)currentFloorY][(int)currentFloorX];
             
             double fracX = currentFloorX - cellX;
             double fracY = currentFloorY - cellY;
@@ -218,65 +214,10 @@ void DrawWalls()
             int texX = (int)(fracX * TEXTURE_SIZE);
             int texY = (int)(fracY * TEXTURE_SIZE);
 
-            BOOL bindResult = CheckBindedTexture(floorHitIndex, GL_POINTS);
+            CheckBindedTexture(floorMap[(int)currentFloorY][(int)currentFloorX], GL_POINTS);
 
             glTexCoord2f((float)texX / (float)TEXTURE_SIZE, (float)texY / (float)TEXTURE_SIZE);
             glVertex2i(x, y);
-        }
-
-    }
-
-    // drawing ceiling (floor mirrored) // 
-    
-    for (int x = 0; x < windowW; x++)
-    {
-        double floorXWall;
-        double floorYWall;
-
-        if (sides[x] == 0 && rayDirXs[x] > 0) 
-        {
-            floorXWall = mapXs[x];
-            floorYWall = mapYs[x] + wallXs[x];
-        } 
-        else if (sides[x] == 0 && rayDirXs[x] < 0) 
-        {
-            floorXWall = mapXs[x] + 1.0;
-            floorYWall = mapYs[x] + wallXs[x];
-        } 
-        else if (sides[x] == 1 && rayDirYs[x] > 0) 
-        {
-            floorXWall = mapXs[x] + wallXs[x];
-            floorYWall = mapYs[x];
-        } 
-        else 
-        {
-            floorXWall = mapXs[x] + wallXs[x];
-            floorYWall = mapYs[x] + 1.0;
-        }
-
-        for (int y = wallEnds[x] + 1; y <= windowH; y++)
-        {
-            double currentDist = windowH / (2.0 * y - windowH);
-            double weight = currentDist / wallPerpDistances[x];
-
-            double currentFloorX = weight * floorXWall + (1.0 - weight) * player.position.x;
-            double currentFloorY = weight * floorYWall + (1.0 - weight) * player.position.y;
-
-            int cellX = (int)currentFloorX;
-            int cellY = (int)currentFloorY;
-
-            int floorHitIndex = ceilingMap[(int)currentFloorY][(int)currentFloorX];
-            
-            double fracX = currentFloorX - cellX;
-            double fracY = currentFloorY - cellY;
-
-            int texX = (int)(fracX * TEXTURE_SIZE);
-            int texY = (int)(fracY * TEXTURE_SIZE);
-
-            BOOL bindResult = CheckBindedTexture(floorHitIndex, GL_POINTS);
-
-            glTexCoord2f((float)texX / (float)TEXTURE_SIZE, (float)texY / (float)TEXTURE_SIZE);
-            glVertex2i(x, windowH - y);
         }
 
     }
