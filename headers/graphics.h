@@ -17,10 +17,12 @@ extern int windowH;
 extern int windowHW;
 extern int windowHH;
 
-#define MAX_TEXTURES 1024 // max amount of textures that can be loaded at once during runtime
-#define TEXTURE_SIZE 256 // square size of all images, has to be equal to this.
-extern GLuint textures[MAX_TEXTURES];
+#define SPRITES_AMOUNT 10 // amount of sprites available in one row of the spritesheet
+#define SPRITESHEET_SIZE 2560 // square size of spritesheet (must be a multiple of 256)
+#define SPRITE_SIZE 256
+ 
+extern GLuint spritesheet;
 
-void LoadTexture(char* textureName, int index);
+void LoadSpritesheet();
 
 #endif

@@ -4,51 +4,35 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../headers/stb_image.h"
 
-GLuint textures[MAX_TEXTURES]; // array of textures ranging from 0 - MAX_TEXTURES
-int amountOfTextures = 0; // current amount of textures loaded
+GLuint spritesheet;
 
-void LoadTexture(char* textureName, int index) // loads texture at index, can not be over MAX_TEXTURES
+void LoadSpritesheet() // loads texture at index, can not be over MAX_TEXTURES
 {
     int width, height, channels;
 
     char texturePath[2048];
 
     sprintf(texturePath, "%s%s", cwd, "/");
-    sprintf(texturePath, "%s%s", texturePath, textureName);
+    sprintf(texturePath, "%s%s", texturePath, "spritesheet.png");
 
-    unsigned char* data = stbi_load(texturePath, &width, &height, &channels, 0);
+    unsigned char* data = stbi_load(texturePath, &width, &height, &channels, 3);
 
     if (!data) 
     {
-        printf("Failed to load texture\n");
+        printf("Failed to load spritesheet.\n");
 
         exit(1);
     }
 
-    //printf("%s loaded at index %d\n", textureName, index);
-
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glGenTextures(1, &spritesheet);
+    glBindTexture(GL_TEXTURE_2D, spritesheet);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
+    glBindTexture(GL_TEXTURE_2D, spritesheet);
+
     stbi_image_free(data);
-
-    textures[index] = texture;
-    amountOfTextures++;
-}
-
-void UnloadTexture(int index) // unloads texture at index
-{
-    glDeleteTextures(1, &textures[index]);
-
-    textures[index] = 0;
-
-    //printf("texture at index %d unloaded\n", index);
-
-    amountOfTextures--;
 }

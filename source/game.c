@@ -69,8 +69,4 @@ void Start()
     player.speed = 4;
 
     gluOrtho2D(0, windowW, windowH, 0);
-
-    LoadTexture("textures/wall.png", 0);
-    LoadTexture("textures/cade.png", 1);
-    LoadTexture("textures/floor.png", 2);
 }

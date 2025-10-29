@@ -8,41 +8,14 @@
 
 extern Player player;
 
-int bindedTexture = -1; // currently binded texture index. -1 means unbinded
-GLenum currentDrawType;
-
-BOOL CheckBindedTexture(int index, GLenum drawType)
+double Normalize(double value, double min, double max)
 {
-    if (bindedTexture != index)
-    {
-        if (bindedTexture != -1) glEnd();
-
-        bindedTexture = index;
-
-        glBindTexture(GL_TEXTURE_2D, textures[index]); // bind the wall texture
-
-        glBegin(drawType);
-
-        currentDrawType = drawType;
-
-        return TRUE;
-    }
-
-    if (currentDrawType != drawType)
-    {
-        glEnd();
-
-        glBegin(drawType);
-    }
-
-    return FALSE;
+    return (value - min) / (max - min);
 }
 
 void DrawWalls()
 {
     // raycasting //
-
-    bindedTexture = -1;
 
     double dirX = cos(player.angle.x);
     double dirY = sin(player.angle.x);
@@ -60,6 +33,8 @@ void DrawWalls()
     double wallXs[windowW];
 
     glEnable(GL_TEXTURE_2D); // enable texturing
+
+    glBegin(GL_QUADS);
 
     for (int x = 0; x < windowW; x++) 
     {
@@ -123,6 +98,8 @@ void DrawWalls()
             if (map[mapY][mapX] >= 0) hit = TRUE;
         }
 
+        int hitIndex = map[mapY][mapX];
+
         if (side == 0) perpWallDist = (mapX - player.position.x + (1 - stepX) / 2) / rayDirX;
         else perpWallDist = (mapY - player.position.y + (1 - stepY) / 2) / rayDirY;
 
@@ -141,21 +118,26 @@ void DrawWalls()
         if (side == 0) wallX = player.position.y + perpWallDist * rayDirY;
         else wallX = player.position.x + perpWallDist * rayDirX;
         
-        wallX -= floor(wallX); 
-        int textureX = (int)(wallX * TEXTURE_SIZE);
+        wallX -= floor(wallX);
 
-        CheckBindedTexture(map[mapY][mapX], GL_QUADS);
+        int spriteX = (int)(wallX * SPRITE_SIZE); 
+        int spritesheetX = spriteX + (map[mapY][mapX] * SPRITE_SIZE);
 
-        glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 0.0);
+        int row = hitIndex / SPRITES_AMOUNT;
+
+        double spriteTop = 0 + (SPRITE_SIZE * row);
+        double spriteBottom = SPRITE_SIZE + (SPRITE_SIZE * row);
+
+        glTexCoord2f((double)spritesheetX / (double)SPRITESHEET_SIZE, spriteTop / (double)SPRITESHEET_SIZE);
         glVertex2i(x, drawStart);
 
-        glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 1.0);
-        glVertex2i(x, drawEnd);
+        glTexCoord2f((double)spritesheetX / (double)SPRITESHEET_SIZE, spriteBottom / (double)SPRITESHEET_SIZE);
+        glVertex2i(x, drawEnd); 
 
-        glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 1.0);
+        glTexCoord2f((double)spritesheetX / (double)SPRITESHEET_SIZE, spriteBottom / (double)SPRITESHEET_SIZE);
         glVertex2i(x+1, drawEnd);
 
-        glTexCoord2f((double)textureX / (double)TEXTURE_SIZE, 0.0);
+        glTexCoord2f((double)spritesheetX / (double)SPRITESHEET_SIZE, spriteTop / (double)SPRITESHEET_SIZE);
         glVertex2i(x+1, drawStart);
 
         wallEnds[x] = drawEnd;
@@ -169,7 +151,11 @@ void DrawWalls()
         
     }
 
+    glEnd();
+    
     // drawing floor // 
+
+    glBegin(GL_POINTS);
 
     for (int x = 0; x < windowW; x++)
     {
@@ -208,16 +194,30 @@ void DrawWalls()
             int cellX = (int)currentFloorX;
             int cellY = (int)currentFloorY;
             
+            int floorIndex = floorMap[cellY][cellX];
+            int ceilingIndex = ceilingMap[cellY][cellX];
+
             double fracX = currentFloorX - cellX;
             double fracY = currentFloorY - cellY;
 
-            int texX = (int)(fracX * TEXTURE_SIZE);
-            int texY = (int)(fracY * TEXTURE_SIZE);
+            int texX = (int)(fracX * SPRITE_SIZE);
+            int texY = (int)(fracY * SPRITE_SIZE);
 
-            CheckBindedTexture(floorMap[(int)currentFloorY][(int)currentFloorX], GL_POINTS);
+            int floorRow = floorIndex / SPRITES_AMOUNT;
+            int floorCol = floorIndex % SPRITES_AMOUNT;
+            int ceilingRow = ceilingIndex / SPRITES_AMOUNT;
+            int ceilingCol = ceilingIndex % SPRITES_AMOUNT;
 
-            glTexCoord2f((float)texX / (float)TEXTURE_SIZE, (float)texY / (float)TEXTURE_SIZE);
+            int floorSpritesheetX = floorCol * SPRITE_SIZE + texX;
+            int floorSpritesheetY = floorRow * SPRITE_SIZE + texY;
+            int ceilingSpritesheetX = ceilingCol * SPRITE_SIZE + texX;
+            int ceilingSpritesheetY = ceilingRow * SPRITE_SIZE + texY;
+
+            glTexCoord2f((float)floorSpritesheetX / (float)SPRITESHEET_SIZE, (float)floorSpritesheetY / (float)SPRITESHEET_SIZE);
             glVertex2i(x, y);
+
+            glTexCoord2f((float)ceilingSpritesheetX / (float)SPRITESHEET_SIZE, (float)ceilingSpritesheetY / (float)SPRITESHEET_SIZE);
+            glVertex2i(x, windowH - y);
         }
 
     }

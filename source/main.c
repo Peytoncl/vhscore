@@ -103,7 +103,7 @@ int main(int argc, char** argv)
   windowHH = (int)((double)windowH * 0.5);
 
   GetCwd();
-
+  LoadSpritesheet();
   Start();
 
   for (int i = 0; i < KEY_COUNT; i++) 
