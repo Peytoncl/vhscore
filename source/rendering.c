@@ -5,6 +5,7 @@
 #include "../headers/graphics.h"
 #include "../headers/game.h"
 #include "../headers/world.h"
+#include "../headers/lighting.h"
 
 extern Player player;
 
