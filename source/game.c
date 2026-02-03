@@ -5,10 +5,13 @@
 #include "../headers/game.h"
 #include "../headers/graphics.h"
 #include "../headers/rendering.h"
+#include "../headers/world.h"
 
 Player player;
 
 extern int keys[256];
+
+extern int map[MAP_LENGTH][MAP_LENGTH];
 
 void ReDisplay()
 {
@@ -23,29 +26,45 @@ void ReDisplay()
 
 void Update(double deltaTime)
 {
+    //classic axis-separated movement + collision resolution algorithm
+
+    DPOINT currentPosition = player.position;
+
+    double dx = 0;
+    double dy = 0;
+
     if (keys['d']) 
     {
-        player.position.x += cos(player.angle.x + M_PI_2) * player.speed * deltaTime;
-        player.position.y += sin(player.angle.x + M_PI_2) * player.speed * deltaTime;
+        dx += cos(player.angle.x + M_PI_2) * player.speed * deltaTime;
+        dy += sin(player.angle.x + M_PI_2) * player.speed * deltaTime;
     }
 
     if (keys['a']) 
     {
-        player.position.x += cos(player.angle.x - M_PI_2) * player.speed * deltaTime;
-        player.position.y += sin(player.angle.x - M_PI_2) * player.speed * deltaTime;
+        dx += cos(player.angle.x - M_PI_2) * player.speed * deltaTime;
+        dy += sin(player.angle.x - M_PI_2) * player.speed * deltaTime;
     }
 
     if (keys['w']) 
     {
-        player.position.x += cos(player.angle.x) * player.speed * deltaTime;
-        player.position.y += sin(player.angle.x) * player.speed * deltaTime;
+        dx += cos(player.angle.x) * player.speed * deltaTime;
+        dy += sin(player.angle.x) * player.speed * deltaTime;
     }
 
     if (keys['s']) 
     {
-        player.position.x -= cos(player.angle.x) * player.speed * deltaTime;
-        player.position.y -= sin(player.angle.x) * player.speed * deltaTime;
+        dx -= cos(player.angle.x) * player.speed * deltaTime;
+        dy -= sin(player.angle.x) * player.speed * deltaTime;
     }
+
+    DPOINT testPosition = {currentPosition.x + dx, currentPosition.y};
+    if (map[(int)testPosition.y][(int)testPosition.x] < 0) currentPosition.x += dx;
+
+    testPosition = (DPOINT){currentPosition.x, currentPosition.y + dy};
+    if (map[(int)testPosition.y][(int)testPosition.x] < 0) currentPosition.y += dy;
+
+    player.position = currentPosition;
+
 }
 
 void MouseMovement(int x, int y)
