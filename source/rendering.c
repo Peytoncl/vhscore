@@ -8,6 +8,10 @@
 
 extern Player player;
 
+extern int map[MAP_LENGTH][MAP_LENGTH];
+extern int floorMap[MAP_LENGTH][MAP_LENGTH];
+extern int ceilingMap[MAP_LENGTH][MAP_LENGTH];
+
 double Normalize(double value, double min, double max)
 {
     return (value - min) / (max - min);
