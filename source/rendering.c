@@ -204,8 +204,8 @@ void DrawWalls()
             double fracX = currentFloorX - cellX;
             double fracY = currentFloorY - cellY;
 
-            int texX = (int)(fracX * SPRITE_SIZE);
-            int texY = (int)(fracY * SPRITE_SIZE);
+            int texX = (int)(fracX * SPRITE_SIZE + 1);
+            int texY = (int)(fracY * SPRITE_SIZE + 1);
 
             int floorRow = floorIndex / SPRITES_AMOUNT;
             int floorCol = floorIndex % SPRITES_AMOUNT;

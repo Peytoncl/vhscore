@@ -28,8 +28,6 @@ void Update(double deltaTime)
 {
     //classic axis-separated movement + collision resolution algorithm
 
-    DPOINT currentPosition = player.position;
-
     double dx = 0;
     double dy = 0;
 
@@ -57,13 +55,11 @@ void Update(double deltaTime)
         dy -= sin(player.angle.x) * player.speed * deltaTime;
     }
 
-    DPOINT testPosition = {currentPosition.x + dx, currentPosition.y};
-    if (map[(int)testPosition.y][(int)testPosition.x] < 0) currentPosition.x += dx;
+    DPOINT testPosition = {player.position.x + dx, player.position.y};
+    if (map[(int)testPosition.y][(int)testPosition.x] < 0) player.position.x += dx;
 
-    testPosition = (DPOINT){currentPosition.x, currentPosition.y + dy};
-    if (map[(int)testPosition.y][(int)testPosition.x] < 0) currentPosition.y += dy;
-
-    player.position = currentPosition;
+    testPosition = (DPOINT){player.position.x, player.position.y + dy};
+    if (map[(int)testPosition.y][(int)testPosition.x] < 0) player.position.y += dy;
 
 }
 
