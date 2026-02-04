@@ -6,6 +6,7 @@
 #include "../headers/game.h"
 #include "../headers/world.h"
 #include "../headers/lighting.h"
+#include "../headers/math_ext.h"
 
 extern Player player;
 
@@ -39,7 +40,7 @@ void DrawWalls()
 
     glEnable(GL_TEXTURE_2D); // enable texturing
 
-    glBegin(GL_QUADS);
+    glBegin(GL_POINTS);
 
     for (int x = 0; x < windowW; x++) 
     {
@@ -133,17 +134,48 @@ void DrawWalls()
         double spriteTop = 0 + (SPRITE_SIZE * row);
         double spriteBottom = SPRITE_SIZE + (SPRITE_SIZE * row);
 
-        glTexCoord2f((double)spritesheetX / (double)SPRITESHEET_SIZE, spriteTop / (double)SPRITESHEET_SIZE);
-        glVertex2i(x, drawStart);
+        double texStep = (double)SPRITE_SIZE / (double)lineHeight;
+        double texPos = 0.0;
 
-        glTexCoord2f((double)spritesheetX / (double)SPRITESHEET_SIZE, spriteBottom / (double)SPRITESHEET_SIZE);
-        glVertex2i(x, drawEnd); 
+        double hitX = player.position.x + rayDirX * perpWallDist;
+        double hitY = player.position.y + rayDirY * perpWallDist;
 
-        glTexCoord2f((double)spritesheetX / (double)SPRITESHEET_SIZE, spriteBottom / (double)SPRITESHEET_SIZE);
-        glVertex2i(x+1, drawEnd);
+        for (int y = drawStart; y < drawEnd; y++)
+        {
+            int texY = (int)(spriteTop + texPos);
+            double v = (double)texY / (double)SPRITESHEET_SIZE;
 
-        glTexCoord2f((double)spritesheetX / (double)SPRITESHEET_SIZE, spriteTop / (double)SPRITESHEET_SIZE);
-        glVertex2i(x+1, drawStart);
+            double t = (y - drawStart) / (drawEnd - drawStart);            
+            double hitZ = dlerp(CEILING_Z, FLOOR_Z, t);
+
+            double totalLight = 0.0;
+
+            for (int i = 0; i < lightCount; i++)
+            {
+                Light L = lights[i];
+
+                double dx = L.position.x - hitX;
+                double dy = L.position.y - hitY;
+                double dz = L.position.z - hitZ;
+
+                double distSq = dx*dx + dy*dy + dz*dz;
+                double dist = sqrt(distSq);
+
+                if (dist > L.radius) continue;
+
+                double attenuation = 1.0 / (1.0 + distSq);
+                if (distSq < 0.001) distSq = 0.001;
+
+                totalLight += attenuation * L.intensity;
+            }
+
+            glColor3f(totalLight, totalLight, totalLight);
+
+            glTexCoord2f((double)spritesheetX / SPRITESHEET_SIZE, v);
+            glVertex2i(x, y);
+
+            texPos += texStep;
+        }
 
         wallEnds[x] = drawEnd;
         wallPerpDistances[x] = perpWallDist;
@@ -190,6 +222,9 @@ void DrawWalls()
 
         for (int y = wallEnds[x] + 1; y <= windowH; y++)
         {
+            //double hitX = player.position.x + rayDirXs[x] * wallPerpDistances[x];
+            //double hitY = player.position.y + rayDirYs[x] * wallPerpDistances[x];
+
             double currentDist = windowH / (2.0 * y - windowH);
             double weight = currentDist / wallPerpDistances[x];
 
@@ -218,8 +253,52 @@ void DrawWalls()
             int ceilingSpritesheetX = ceilingCol * SPRITE_SIZE + texX;
             int ceilingSpritesheetY = ceilingRow * SPRITE_SIZE + texY;
 
+            double floorTotalLight = 0.0;
+
+            for (int i = 0; i < lightCount; i++)
+            {
+                Light L = lights[i];
+
+                double dx = L.position.x - currentFloorX;
+                double dy = L.position.y - currentFloorY;
+                double dz = L.position.z - FLOOR_Z;
+
+                double distSq = dx*dx + dy*dy + dz*dz;
+                double dist = sqrt(distSq);
+
+                if (dist > L.radius) continue;
+
+                double attenuation = 1.0 / (1.0 + distSq);
+
+                floorTotalLight += attenuation * L.intensity;
+            }
+
+            double ceilingTotalLight = 0.0;
+
+            for (int i = 0; i < lightCount; i++)
+            {
+                Light L = lights[i];
+
+                double dx = L.position.x - currentFloorX;
+                double dy = L.position.y - currentFloorY;
+                double dz = L.position.z - CEILING_Z;
+
+                double distSq = dx*dx + dy*dy + dz*dz;
+                double dist = sqrt(distSq);
+
+                if (dist > L.radius) continue;
+
+                double attenuation = 1.0 / (1.0 + distSq);
+
+                ceilingTotalLight += attenuation * L.intensity;
+            }
+            
+            glColor3f(floorTotalLight, floorTotalLight, floorTotalLight);
+
             glTexCoord2f((float)floorSpritesheetX / (float)SPRITESHEET_SIZE, (float)floorSpritesheetY / (float)SPRITESHEET_SIZE);
             glVertex2i(x, y);
+
+            glColor3f(ceilingTotalLight, ceilingTotalLight, ceilingTotalLight);
 
             glTexCoord2f((float)ceilingSpritesheetX / (float)SPRITESHEET_SIZE, (float)ceilingSpritesheetY / (float)SPRITESHEET_SIZE);
             glVertex2i(x, windowH - y);

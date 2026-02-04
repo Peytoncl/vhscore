@@ -41,3 +41,11 @@ int ceilingMap[MAP_LENGTH][MAP_LENGTH] = //Y, X
     {2,2,2,2,2,2,2,2}
 
 };
+
+Light lights[MAX_LIGHTS] = 
+{
+
+    {(DPOINT3){4, 4, 1}, 2, 5}
+
+};
+int lightCount = 1;

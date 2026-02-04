@@ -9,7 +9,7 @@ typedef struct
     DPOINT3 position; // 3d value
     double intensity;
     double radius;
-    Color color;
+    //Color color;
 } Light;
 
 #endif

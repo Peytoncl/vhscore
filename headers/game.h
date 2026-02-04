@@ -16,6 +16,7 @@ typedef struct
     double FOV;
     double sensitivity;
     double speed;
+    double radius;
 } Player;
 
 typedef struct

@@ -56,9 +56,17 @@ void Update(double deltaTime)
     }
 
     DPOINT testPosition = {player.position.x + dx, player.position.y};
+
+    if (dx > 0) testPosition.x += player.radius;
+    if (dx < 0) testPosition.x -= player.radius;
+
     if (map[(int)testPosition.y][(int)testPosition.x] < 0) player.position.x += dx;
 
     testPosition = (DPOINT){player.position.x, player.position.y + dy};
+
+    if (dy > 0) testPosition.y += player.radius;
+    if (dy < 0) testPosition.y -= player.radius;
+
     if (map[(int)testPosition.y][(int)testPosition.x] < 0) player.position.y += dy;
 
 }
@@ -82,6 +90,8 @@ void Start()
     player.FOV = 1;
     player.sensitivity = 0.01;
     player.speed = 4;
+
+    player.radius = 0.5;
 
     gluOrtho2D(0, windowW, windowH, 0);
 }
