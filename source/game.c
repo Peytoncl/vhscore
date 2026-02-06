@@ -55,6 +55,24 @@ void Update(double deltaTime)
         dy -= sin(player.angle.x) * player.speed * deltaTime;
     }
 
+    if (keys['q'])
+    {
+        lights[0].position.x += 0.01 * player.speed;
+    }
+    if (keys['e'])
+    {
+        lights[0].position.x -= 0.01 * player.speed;
+    }
+    if (keys['c'])
+    {
+        lights[0].position.z += 0.01 * player.speed;
+    }
+    if (keys['z'])
+    {
+        lights[0].position.z -= 0.01 * player.speed;
+    }
+
+
     DPOINT testPosition = {player.position.x + dx, player.position.y};
 
     if (dx > 0) testPosition.x += player.radius;

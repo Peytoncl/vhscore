@@ -169,6 +169,8 @@ void DrawWalls()
                 totalLight += attenuation * L.intensity;
             }
 
+            if (totalLight < MIN_LIGHT) totalLight = MIN_LIGHT;
+
             glColor3f(totalLight, totalLight, totalLight);
 
             glTexCoord2f((double)spritesheetX / SPRITESHEET_SIZE, v);
@@ -293,10 +295,14 @@ void DrawWalls()
                 ceilingTotalLight += attenuation * L.intensity;
             }
             
+            if (floorTotalLight < MIN_LIGHT) floorTotalLight = MIN_LIGHT;
+
             glColor3f(floorTotalLight, floorTotalLight, floorTotalLight);
 
             glTexCoord2f((float)floorSpritesheetX / (float)SPRITESHEET_SIZE, (float)floorSpritesheetY / (float)SPRITESHEET_SIZE);
             glVertex2i(x, y);
+
+            if (ceilingTotalLight < MIN_LIGHT) ceilingTotalLight = MIN_LIGHT;
 
             glColor3f(ceilingTotalLight, ceilingTotalLight, ceilingTotalLight);
 
